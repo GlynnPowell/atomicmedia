@@ -23,6 +23,7 @@ builder.Services.AddDbContext<AtomicTasksDbContext>(options =>
     options.UseSqlite(connectionString));
 
 builder.Services.AddScoped<ITaskRepository, EfTaskRepository>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 var app = builder.Build();
 
@@ -45,29 +46,29 @@ using (var scope = app.Services.CreateScope())
 var tasksGroup = app.MapGroup("/api/tasks");
 
 tasksGroup.MapGet("/", async (
-        ITaskRepository repository,
+        ITaskService service,
         bool? isCompleted,
         string? search,
         CancellationToken cancellationToken) =>
     {
-        var tasks = await repository.GetTasksAsync(isCompleted, search, cancellationToken);
-        return Results.Ok(tasks.Select(t => t.ToDto()));
+        var tasks = await service.GetTasksAsync(isCompleted, search, cancellationToken);
+        return Results.Ok(tasks);
     });
 
 tasksGroup.MapGet("/{id:int}", async (
         int id,
-        ITaskRepository repository,
+        ITaskService service,
         CancellationToken cancellationToken) =>
     {
-        var task = await repository.GetByIdAsync(id, cancellationToken);
+        var task = await service.GetByIdAsync(id, cancellationToken);
         return task is null
             ? Results.NotFound()
-            : Results.Ok(task.ToDto());
+            : Results.Ok(task);
     });
 
 tasksGroup.MapPost("/", async (
         CreateTaskRequest request,
-        ITaskRepository repository,
+        ITaskService service,
         CancellationToken cancellationToken) =>
     {
         var validationErrors = ValidateTitle(request.Title);
@@ -76,24 +77,14 @@ tasksGroup.MapPost("/", async (
             return Results.ValidationProblem(validationErrors);
         }
 
-        var entity = new AtomicTasks.Domain.Tasks.Task
-        {
-            Title = request.Title.Trim(),
-            Description = request.Description,
-            DueDate = request.DueDate,
-            IsCompleted = false
-        };
-
-        var created = await repository.AddAsync(entity, cancellationToken);
-        var dto = created.ToDto();
-
-        return Results.Created($"/api/tasks/{dto.Id}", dto);
+        var created = await service.CreateAsync(request, cancellationToken);
+        return Results.Created($"/api/tasks/{created.Id}", created);
     });
 
 tasksGroup.MapPut("/{id:int}", async (
         int id,
         UpdateTaskRequest request,
-        ITaskRepository repository,
+        ITaskService service,
         CancellationToken cancellationToken) =>
     {
         var validationErrors = ValidateTitle(request.Title);
@@ -102,36 +93,19 @@ tasksGroup.MapPut("/{id:int}", async (
             return Results.ValidationProblem(validationErrors);
         }
 
-        var existing = await repository.GetByIdAsync(id, cancellationToken);
-        if (existing is null)
-        {
-            return Results.NotFound();
-        }
-
-        existing.Title = request.Title.Trim();
-        existing.Description = request.Description;
-        existing.IsCompleted = request.IsCompleted;
-        existing.DueDate = request.DueDate;
-
-        await repository.UpdateAsync(existing, cancellationToken);
-
-        return Results.Ok(existing.ToDto());
+        var updated = await service.UpdateAsync(id, request, cancellationToken);
+        return updated is null
+            ? Results.NotFound()
+            : Results.Ok(updated);
     });
 
 tasksGroup.MapDelete("/{id:int}", async (
         int id,
-        ITaskRepository repository,
+        ITaskService service,
         CancellationToken cancellationToken) =>
     {
-        var existing = await repository.GetByIdAsync(id, cancellationToken);
-        if (existing is null)
-        {
-            return Results.NotFound();
-        }
-
-        await repository.DeleteAsync(existing, cancellationToken);
-
-        return Results.NoContent();
+        var deleted = await service.DeleteAsync(id, cancellationToken);
+        return deleted ? Results.NoContent() : Results.NotFound();
     });
 
 app.Run();
