@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AtomicTasks.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cdd1c711fd4cfbdcc4cbaab0fb3a1a67ef78a268")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d04ac6e1c93ccb60c4671b1a92940e7334d531f5")]
 [assembly: System.Reflection.AssemblyProductAttribute("AtomicTasks.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AtomicTasks.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
