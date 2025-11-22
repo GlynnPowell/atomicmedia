@@ -1,0 +1,6 @@
+@AtomicTasks.Api_HostAddress = http://localhost:5286
+
+GET {{AtomicTasks.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
