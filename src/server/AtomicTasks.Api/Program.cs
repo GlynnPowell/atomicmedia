@@ -2,8 +2,6 @@ using AtomicTasks.Application.Tasks;
 using AtomicTasks.Infrastructure;
 using AtomicTasks.Infrastructure.Tasks;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
-using DomainTaskStatus = AtomicTasks.Domain.Tasks.TaskStatus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +14,6 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:5173", "http://localhost:4173")
               .AllowAnyHeader()
               .AllowAnyMethod());
-});
-
-// Ensure enums are serialized/deserialized as strings (e.g. "Todo", "InProgress", "Done")
-builder.Services.ConfigureHttpJsonOptions(options =>
-{
-    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -54,16 +46,16 @@ var tasksGroup = app.MapGroup("/api/tasks");
 
 tasksGroup.MapGet("/", async (
         ITaskRepository repository,
-        DomainTaskStatus? status,
+        bool? isCompleted,
         string? search,
         CancellationToken cancellationToken) =>
     {
-        var tasks = await repository.GetTasksAsync(status, search, cancellationToken);
+        var tasks = await repository.GetTasksAsync(isCompleted, search, cancellationToken);
         return Results.Ok(tasks.Select(t => t.ToDto()));
     });
 
-tasksGroup.MapGet("/{id:guid}", async (
-        Guid id,
+tasksGroup.MapGet("/{id:int}", async (
+        int id,
         ITaskRepository repository,
         CancellationToken cancellationToken) =>
     {
@@ -88,9 +80,8 @@ tasksGroup.MapPost("/", async (
         {
             Title = request.Title.Trim(),
             Description = request.Description,
-            Priority = request.Priority ?? AtomicTasks.Domain.Tasks.TaskPriority.Medium,
             DueDate = request.DueDate,
-            Status = DomainTaskStatus.Todo
+            IsCompleted = false
         };
 
         var created = await repository.AddAsync(entity, cancellationToken);
@@ -99,8 +90,8 @@ tasksGroup.MapPost("/", async (
         return Results.Created($"/api/tasks/{dto.Id}", dto);
     });
 
-tasksGroup.MapPut("/{id:guid}", async (
-        Guid id,
+tasksGroup.MapPut("/{id:int}", async (
+        int id,
         UpdateTaskRequest request,
         ITaskRepository repository,
         CancellationToken cancellationToken) =>
@@ -119,8 +110,7 @@ tasksGroup.MapPut("/{id:guid}", async (
 
         existing.Title = request.Title.Trim();
         existing.Description = request.Description;
-        existing.Status = request.Status;
-        existing.Priority = request.Priority ?? existing.Priority;
+        existing.IsCompleted = request.IsCompleted;
         existing.DueDate = request.DueDate;
 
         await repository.UpdateAsync(existing, cancellationToken);
@@ -128,27 +118,8 @@ tasksGroup.MapPut("/{id:guid}", async (
         return Results.Ok(existing.ToDto());
     });
 
-tasksGroup.MapPatch("/{id:guid}/status", async (
-        Guid id,
-        UpdateTaskStatusRequest request,
-        ITaskRepository repository,
-        CancellationToken cancellationToken) =>
-    {
-        var existing = await repository.GetByIdAsync(id, cancellationToken);
-        if (existing is null)
-        {
-            return Results.NotFound();
-        }
-
-        existing.Status = request.Status;
-
-        await repository.UpdateAsync(existing, cancellationToken);
-
-        return Results.Ok(existing.ToDto());
-    });
-
-tasksGroup.MapDelete("/{id:guid}", async (
-        Guid id,
+tasksGroup.MapDelete("/{id:int}", async (
+        int id,
         ITaskRepository repository,
         CancellationToken cancellationToken) =>
     {
@@ -175,7 +146,7 @@ static Dictionary<string, string[]>? ValidateTitle(string? title)
         };
     }
 
-    if (title.Length > 200)
+    if (title.Length > 100)
     {
         return new Dictionary<string, string[]>
         {

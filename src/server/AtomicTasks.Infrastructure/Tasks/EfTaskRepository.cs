@@ -4,7 +4,6 @@ namespace AtomicTasks.Infrastructure.Tasks;
 
 using ApplicationTaskRepository = AtomicTasks.Application.Tasks.ITaskRepository;
 using DomainTask = AtomicTasks.Domain.Tasks.Task;
-using DomainTaskStatus = AtomicTasks.Domain.Tasks.TaskStatus;
 
 public sealed class EfTaskRepository : ApplicationTaskRepository
 {
@@ -16,15 +15,15 @@ public sealed class EfTaskRepository : ApplicationTaskRepository
     }
 
     public async System.Threading.Tasks.Task<IReadOnlyList<DomainTask>> GetTasksAsync(
-        DomainTaskStatus? status,
+        bool? isCompleted,
         string? search,
         CancellationToken cancellationToken = default)
     {
         IQueryable<DomainTask> query = _dbContext.Tasks.AsNoTracking();
 
-        if (status is not null)
+        if (isCompleted is not null)
         {
-            query = query.Where(t => t.Status == status);
+            query = query.Where(t => t.IsCompleted == isCompleted);
         }
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -40,7 +39,7 @@ public sealed class EfTaskRepository : ApplicationTaskRepository
             .ToListAsync(cancellationToken);
     }
 
-    public System.Threading.Tasks.Task<DomainTask?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public System.Threading.Tasks.Task<DomainTask?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
         _dbContext.Tasks
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
@@ -48,7 +47,6 @@ public sealed class EfTaskRepository : ApplicationTaskRepository
     public async System.Threading.Tasks.Task<DomainTask> AddAsync(DomainTask task, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
-        task.Id = task.Id == Guid.Empty ? Guid.NewGuid() : task.Id;
         task.CreatedAt = now;
         task.UpdatedAt = now;
 

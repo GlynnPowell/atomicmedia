@@ -10,8 +10,7 @@ public static class TaskMappings
             Id = entity.Id,
             Title = entity.Title,
             Description = entity.Description,
-            Status = entity.Status,
-            Priority = entity.Priority,
+            IsCompleted = entity.IsCompleted,
             DueDate = entity.DueDate,
             CreatedAt = entity.CreatedAt,
             UpdatedAt = entity.UpdatedAt

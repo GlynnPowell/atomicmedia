@@ -1,7 +1,5 @@
 ﻿using AtomicTasks.Application.Tasks;
 using DomainTask = AtomicTasks.Domain.Tasks.Task;
-using DomainTaskStatus = AtomicTasks.Domain.Tasks.TaskStatus;
-using DomainTaskPriority = AtomicTasks.Domain.Tasks.TaskPriority;
 
 namespace AtomicTasks.Tests;
 
@@ -15,11 +13,10 @@ public class TaskMappingsTests
 
         var entity = new DomainTask
         {
-            Id = Guid.NewGuid(),
+            Id = 123,
             Title = "Test task",
             Description = "Description",
-            Status = DomainTaskStatus.InProgress,
-            Priority = DomainTaskPriority.High,
+            IsCompleted = true,
             DueDate = now.AddDays(1),
             CreatedAt = now.AddMinutes(-10),
             UpdatedAt = now
@@ -32,8 +29,7 @@ public class TaskMappingsTests
         Assert.Equal(entity.Id, dto.Id);
         Assert.Equal(entity.Title, dto.Title);
         Assert.Equal(entity.Description, dto.Description);
-        Assert.Equal(entity.Status, dto.Status);
-        Assert.Equal(entity.Priority, dto.Priority);
+        Assert.Equal(entity.IsCompleted, dto.IsCompleted);
         Assert.Equal(entity.DueDate, dto.DueDate);
         Assert.Equal(entity.CreatedAt, dto.CreatedAt);
         Assert.Equal(entity.UpdatedAt, dto.UpdatedAt);

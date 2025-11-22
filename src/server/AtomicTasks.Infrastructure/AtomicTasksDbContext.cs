@@ -25,19 +25,13 @@ public class AtomicTasksDbContext : DbContext
 
         task.Property(t => t.Title)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(100);
 
         task.Property(t => t.Description)
             .HasMaxLength(2000);
 
-        task.Property(t => t.Status)
-            .HasConversion<string>()
-            .HasMaxLength(32)
-            .IsRequired();
-
-        task.Property(t => t.Priority)
-            .HasConversion<string>()
-            .HasMaxLength(32)
+        task.Property(t => t.IsCompleted)
+            .HasDefaultValue(false)
             .IsRequired();
 
         task.Property(t => t.CreatedAt)

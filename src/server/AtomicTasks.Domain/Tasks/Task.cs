@@ -2,22 +2,19 @@ namespace AtomicTasks.Domain.Tasks;
 
 public class Task
 {
-    public Guid Id { get; set; }
+    // Core fields required by the assessment spec
+    public int Id { get; set; }
 
     public string Title { get; set; } = string.Empty;
 
     public string? Description { get; set; }
 
-    public TaskStatus Status { get; set; } = TaskStatus.Todo;
-
-    public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+    public bool IsCompleted { get; set; } = false;
 
     public DateTime? DueDate { get; set; }
 
+    // Extra metadata (optional, useful for auditing)
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
 }
-
-
-

@@ -4,15 +4,11 @@ import './style.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
-type TaskStatus = 'Todo' | 'InProgress' | 'Done'
-type TaskPriority = 'Low' | 'Medium' | 'High'
-
 type Task = {
-  id: string
+  id: number
   title: string
   description?: string | null
-  status: TaskStatus
-  priority: TaskPriority
+  isCompleted: boolean
   dueDate?: string | null
   createdAt: string
   updatedAt: string
@@ -26,10 +22,9 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [titleInput, setTitleInput] = useState('')
   const [descriptionInput, setDescriptionInput] = useState('')
-  const [priorityInput, setPriorityInput] = useState<TaskPriority>('Medium')
   const [dueDateInput, setDueDateInput] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -61,7 +56,6 @@ const App: React.FC = () => {
     setEditingId(null)
     setTitleInput('')
     setDescriptionInput('')
-    setPriorityInput('Medium')
     setDueDateInput('')
     setFormError(null)
   }
@@ -70,7 +64,6 @@ const App: React.FC = () => {
     setEditingId(task.id)
     setTitleInput(task.title)
     setDescriptionInput(task.description ?? '')
-    setPriorityInput(task.priority)
     setDueDateInput(task.dueDate ? task.dueDate.substring(0, 10) : '')
     setFormError(null)
   }
@@ -84,8 +77,8 @@ const App: React.FC = () => {
       setFormError('Title is required.')
       return
     }
-    if (trimmedTitle.length > 200) {
-      setFormError('Title must be at most 200 characters.')
+    if (trimmedTitle.length > 100) {
+      setFormError('Title must be at most 100 characters.')
       return
     }
 
@@ -100,13 +93,12 @@ const App: React.FC = () => {
       const body: any = {
         title: trimmedTitle,
         description: descriptionInput || null,
-        priority: priorityInput,
         dueDate: dueDateInput ? new Date(dueDateInput).toISOString() : null
       }
 
       if (isEdit) {
         const existing = tasks.find(t => t.id === editingId)
-        body.status = existing?.status ?? 'Todo'
+        body.isCompleted = existing?.isCompleted ?? false
       }
 
       const response = await fetch(url, {
@@ -141,7 +133,7 @@ const App: React.FC = () => {
     }
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this task?')) {
       return
     }
@@ -164,14 +156,22 @@ const App: React.FC = () => {
     }
   }
 
-  const handleStatusChange = async (id: string, status: TaskStatus) => {
+  const handleCompletionToggle = async (id: number, isCompleted: boolean) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/tasks/${id}/status`, {
-        method: 'PATCH',
+      const existing = tasks.find(t => t.id === id)
+      if (!existing) return
+
+      const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({
+          title: existing.title,
+          description: existing.description,
+          isCompleted,
+          dueDate: existing.dueDate
+        })
       })
 
       if (!response.ok) {
@@ -223,23 +223,7 @@ const App: React.FC = () => {
               disabled: isSubmitting
             })
           ),
-          React.createElement(
-            'label',
-            null,
-            'Priority',
-            React.createElement(
-              'select',
-              {
-                value: priorityInput,
-                onChange: (e: React.ChangeEvent<HTMLSelectElement>) =>
-                  setPriorityInput(e.target.value as TaskPriority),
-                disabled: isSubmitting
-              },
-              React.createElement('option', { value: 'Low' }, 'Low'),
-              React.createElement('option', { value: 'Medium' }, 'Medium'),
-              React.createElement('option', { value: 'High' }, 'High')
-            )
-          ),
+          // Priority is omitted to match the core assessment Task model
           React.createElement(
             'label',
             null,
@@ -330,13 +314,10 @@ const App: React.FC = () => {
                 React.createElement(
                   'td',
                   null,
-                  React.createElement(
-                    'span',
-                    { className: `pill pill-${task.status.toLowerCase()}` },
-                    task.status
-                  )
+                  task.isCompleted
+                    ? React.createElement('span', { className: 'pill pill-done' }, 'Completed')
+                    : React.createElement('span', { className: 'pill pill-todo' }, 'Pending')
                 ),
-                React.createElement('td', null, task.priority),
                 React.createElement(
                   'td',
                   null,
@@ -351,15 +332,13 @@ const App: React.FC = () => {
                   'td',
                   { className: 'task-actions' },
                   React.createElement(
-                    'select',
+                    'button',
                     {
-                      value: task.status,
-                      onChange: (e: React.ChangeEvent<HTMLSelectElement>) =>
-                        handleStatusChange(task.id, e.target.value as TaskStatus)
+                      type: 'button',
+                      className: 'link',
+                      onClick: () => handleCompletionToggle(task.id, !task.isCompleted)
                     },
-                    React.createElement('option', { value: 'Todo' }, 'Todo'),
-                    React.createElement('option', { value: 'InProgress' }, 'In progress'),
-                    React.createElement('option', { value: 'Done' }, 'Done')
+                    task.isCompleted ? 'Mark as pending' : 'Mark as completed'
                   ),
                   React.createElement(
                     'button',

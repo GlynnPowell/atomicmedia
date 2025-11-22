@@ -2,8 +2,6 @@ using AtomicTasks.Infrastructure;
 using AtomicTasks.Infrastructure.Tasks;
 using Microsoft.EntityFrameworkCore;
 using DomainTask = AtomicTasks.Domain.Tasks.Task;
-using DomainTaskStatus = AtomicTasks.Domain.Tasks.TaskStatus;
-using DomainTaskPriority = AtomicTasks.Domain.Tasks.TaskPriority;
 
 namespace AtomicTasks.Tests;
 
@@ -24,8 +22,7 @@ public class TaskRepositoryTests
         {
             Title = "Write assessment",
             Description = "Implement full-stack task management app",
-            Status = DomainTaskStatus.Todo,
-            Priority = DomainTaskPriority.High
+            IsCompleted = false
         };
 
         // Act
@@ -33,7 +30,7 @@ public class TaskRepositoryTests
         var tasks = await repository.GetTasksAsync(null, null);
 
         // Assert
-        Assert.NotEqual(Guid.Empty, created.Id);
+        Assert.True(created.Id > 0);
         Assert.Single(tasks);
         Assert.Equal("Write assessment", tasks[0].Title);
     }

@@ -216,6 +216,11 @@ body {
   color: #f97373;
 }
 
+.task-actions .link:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 @media (max-width: 640px) {
   .app {
     padding: 1.75rem 1.5rem;
