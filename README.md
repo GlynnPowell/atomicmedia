@@ -1,14 +1,13 @@
 ## Atomic Tasks – Full-Stack Task Management Application
 
 This repository contains a small full‑stack task management application implemented for a technical assessment.
-The focus is on clean architecture, straightforward local setup, and demonstrating awareness of microservices, Docker, and Azure without over‑engineering the solution.
+The focus is on clean architecture, straightforward local setup, and demonstrating awareness of microservices and Azure without over‑engineering the solution.
 
 ## Tech stack
 
 - **Backend**: .NET 9 (ASP.NET Core) REST API
 - **Frontend**: React with TypeScript
 - **Database**: SQLite (via Entity Framework Core)
-- **Containerisation**: Docker + docker-compose (optional, for one-command local setup)
 - **Cloud target**: Azure (App Service or Container Apps + managed database), described at a high level
 
 ## Project structure (planned)
@@ -18,9 +17,8 @@ The solution is organised as a **modular monolith**: a single deployable backend
 ```text
 .
 ├─ README.md
-├─ AtomicTasks.sln                 # .NET solution (planned)
-├─ docker-compose.yml              # Orchestrates API, DB, and frontend (planned)
-├─ infra/                          # Optional Azure / IaC snippets (planned)
+├─ AtomicTasks.sln                 # .NET solution
+├─ infra/                          # Optional Azure / IaC snippets (if added)
 ├─ src/
 │  ├─ server/
 │  │  ├─ AtomicTasks.Api/          # ASP.NET Core API (endpoints, startup, DI)
@@ -36,17 +34,30 @@ The solution is organised as a **modular monolith**: a single deployable backend
 
 This structure keeps responsibilities separated and makes it easy to explain how the backend could later be split into independent microservices (for example, by extracting `Tasks` into its own service).
 
-## Running the application (planned)
+## Running the application (local, no Docker)
 
-**Note**: The implementation is being built step by step. The commands below describe the intended developer experience and will be updated as the code is added.
+From the repository root:
 
-- **Direct (no Docker)**:
-  - **Backend**: restore and run the .NET 9 API (e.g. `dotnet restore` then `dotnet run` in `AtomicTasks.Api`).
-  - **Frontend**: install dependencies and start the dev server (e.g. `npm install` then `npm run dev` in `src/client`).
-- **With Docker**:
-  - Use `docker-compose.yml` at the repo root to start the API, SQLite DB, and frontend with a single `docker compose up` command.
+- **Backend (.NET 9 API with SQLite)**
+  - Restore and build (first time):
+    - `dotnet restore`
+  - Run the API:
+    - `dotnet run --project src/server/AtomicTasks.Api/AtomicTasks.Api.csproj`
+  - The API will listen on `http://localhost:5286` (per `launchSettings.json`), with task endpoints under `http://localhost:5286/api/tasks`.
 
-Exact commands, ports, and environment variables will be documented once the implementation is complete.
+- **Frontend (React + TypeScript)**
+  - In a separate terminal:
+    - `cd src/client`
+    - `npm install` (first time only)
+    - On PowerShell:
+      - `$env:VITE_API_BASE_URL="http://localhost:5286/api"`
+    - Then start the dev server:
+      - `npm run dev`
+  - Open the browser at `http://localhost:5173` to use the app.
+
+- **Tests**
+  - Run backend tests from the repo root:
+    - `dotnet test AtomicTasks.sln`
 
 ## Architecture overview
 
@@ -91,9 +102,8 @@ The following TODO list captures the high-level plan used to tackle the assessme
 5. **Backend core implementation** – Implement task CRUD, business rules, persistence with SQLite, error handling, and configuration for local development.
 6. **Frontend core implementation** – Build the React + TypeScript UI (task list, create/edit/delete, status changes, filtering, and UX details like loading and error states).
 7. **Testing** – Add essential tests (unit tests for domain and application logic; a small number of integration/API tests).
-8. **Dockerisation** – Add Dockerfiles and a `docker-compose.yml` to run API, DB, and frontend with one command.
-9. **Azure notes** – Document an outline for deploying to Azure, including configuration via environment variables and Key Vault.
-10. **Docs & polish** – Finalise this README with concrete run instructions, record trade-offs and future improvements, and do a final UX and code cleanup pass.
+8. **Azure notes** – Document an outline for deploying to Azure, including configuration via environment variables and Key Vault.
+9. **Docs & polish** – Finalise this README with concrete run instructions, record trade-offs and future improvements, and do a final UX and code cleanup pass.
 
 This README will be updated as each step is completed.
 
