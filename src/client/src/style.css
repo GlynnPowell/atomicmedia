@@ -221,6 +221,13 @@ body {
   cursor: default;
 }
 
+.task-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 @media (max-width: 640px) {
   .app {
     padding: 1.75rem 1.5rem;

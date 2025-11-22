@@ -16,7 +16,27 @@ type Task = {
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error'
 
+type Route =
+  | { kind: 'list' }
+  | { kind: 'new' }
+  | { kind: 'edit'; id: number }
+
+const parseRoute = (pathname: string): Route => {
+  if (pathname === '/tasks/new') {
+    return { kind: 'new' }
+  }
+
+  const editMatch = pathname.match(/^\/tasks\/(\d+)$/)
+  if (editMatch) {
+    return { kind: 'edit', id: Number(editMatch[1]) }
+  }
+
+  // Default to list view
+  return { kind: 'list' }
+}
+
 const App: React.FC = () => {
+  const [route, setRoute] = useState<Route>(() => parseRoute(window.location.pathname))
   const [tasks, setTasks] = useState<Task[]>([])
   const [loadState, setLoadState] = useState<LoadState>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -27,6 +47,15 @@ const App: React.FC = () => {
   const [descriptionInput, setDescriptionInput] = useState('')
   const [dueDateInput, setDueDateInput] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setRoute(parseRoute(window.location.pathname))
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -60,13 +89,36 @@ const App: React.FC = () => {
     setFormError(null)
   }
 
-  const startEdit = (task: Task) => {
-    setEditingId(task.id)
-    setTitleInput(task.title)
-    setDescriptionInput(task.description ?? '')
-    setDueDateInput(task.dueDate ? task.dueDate.substring(0, 10) : '')
-    setFormError(null)
+  const navigate = (next: Route) => {
+    let path = '/tasks'
+    if (next.kind === 'new') {
+      path = '/tasks/new'
+    } else if (next.kind === 'edit') {
+      path = `/tasks/${next.id}`
+    }
+
+    window.history.pushState(null, '', path)
+    setRoute(next)
   }
+
+  // Keep form state in sync with the current route
+  useEffect(() => {
+    if (route.kind === 'new') {
+      resetForm()
+    } else if (route.kind === 'edit') {
+      const task = tasks.find(t => t.id === route.id)
+      if (task) {
+        setEditingId(task.id)
+        setTitleInput(task.title)
+        setDescriptionInput(task.description ?? '')
+        setDueDateInput(task.dueDate ? task.dueDate.substring(0, 10) : '')
+        setFormError(null)
+      }
+    } else {
+      // list
+      resetForm()
+    }
+  }, [route, tasks])
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -202,174 +254,198 @@ const App: React.FC = () => {
     React.createElement(
       'section',
       { className: 'app-section' },
+      // Simple navigation
       React.createElement(
-        'form',
-        {
-          className: 'task-form',
-          onSubmit: handleSubmit
-        },
-        React.createElement(
-          'div',
-          { className: 'task-form-row' },
-          React.createElement(
-            'label',
-            null,
-            'Title',
-            React.createElement('input', {
-              type: 'text',
-              value: titleInput,
-              onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                setTitleInput(e.target.value),
-              disabled: isSubmitting
-            })
-          ),
-          // Priority is omitted to match the core assessment Task model
-          React.createElement(
-            'label',
-            null,
-            'Due date',
-            React.createElement('input', {
-              type: 'date',
-              value: dueDateInput,
-              onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                setDueDateInput(e.target.value),
-              disabled: isSubmitting
-            })
-          )
-        ),
-        React.createElement(
-          'div',
-          { className: 'task-form-row' },
-          React.createElement(
-            'label',
-            { className: 'task-form-description' },
-            'Description',
-            React.createElement('textarea', {
-              value: descriptionInput,
-              rows: 2,
-              onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setDescriptionInput(e.target.value),
-              disabled: isSubmitting
-            })
-          )
-        ),
-        formError &&
-          React.createElement(
-            'p',
-            { className: 'task-form-error' },
-            formError
-          ),
-        React.createElement(
-          'div',
-          { className: 'task-form-actions' },
+        'div',
+        { className: 'task-nav' },
+        route.kind !== 'list' &&
           React.createElement(
             'button',
-            { type: 'submit', disabled: isSubmitting },
-            editingId ? 'Update task' : 'Add task'
+            {
+              type: 'button',
+              className: 'link',
+              onClick: () => navigate({ kind: 'list' })
+            },
+            '← Back to tasks'
           ),
-          editingId &&
+        route.kind === 'list' &&
+          React.createElement(
+            'button',
+            {
+              type: 'button',
+              className: 'link',
+              onClick: () => navigate({ kind: 'new' })
+            },
+            'Add new task'
+          )
+      ),
+      // Add / Edit task view
+      (route.kind === 'new' || route.kind === 'edit') &&
+        React.createElement(
+          'form',
+          {
+            className: 'task-form',
+            onSubmit: handleSubmit
+          },
+          React.createElement(
+            'div',
+            { className: 'task-form-row' },
+            React.createElement(
+              'label',
+              null,
+              'Title',
+              React.createElement('input', {
+                type: 'text',
+                value: titleInput,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  setTitleInput(e.target.value),
+                disabled: isSubmitting
+              })
+            ),
+            React.createElement(
+              'label',
+              null,
+              'Due date',
+              React.createElement('input', {
+                type: 'date',
+                value: dueDateInput,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  setDueDateInput(e.target.value),
+                disabled: isSubmitting
+              })
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'task-form-row' },
+            React.createElement(
+              'label',
+              { className: 'task-form-description' },
+              'Description',
+              React.createElement('textarea', {
+                value: descriptionInput,
+                rows: 2,
+                onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setDescriptionInput(e.target.value),
+                disabled: isSubmitting
+              })
+            )
+          ),
+          formError &&
+            React.createElement(
+              'p',
+              { className: 'task-form-error' },
+              formError
+            ),
+          React.createElement(
+            'div',
+            { className: 'task-form-actions' },
+            React.createElement(
+              'button',
+              { type: 'submit', disabled: isSubmitting },
+              route.kind === 'edit' ? 'Update task' : 'Add task'
+            ),
             React.createElement(
               'button',
               {
                 type: 'button',
                 className: 'secondary',
-                onClick: resetForm,
+                onClick: () => navigate({ kind: 'list' }),
                 disabled: isSubmitting
               },
-              'Cancel edit'
+              'Cancel'
             )
-        )
-      ),
-      loadState === 'loading' &&
-        React.createElement('p', null, 'Loading tasks…'),
-      loadState === 'error' && error &&
-        React.createElement('p', null, error),
-      loadState === 'loaded' && tasks.length === 0 &&
-        React.createElement('p', null, 'No tasks found yet.'),
-      tasks.length > 0 &&
+          )
+        ),
+      // Task list view
+      route.kind === 'list' &&
         React.createElement(
-          'table',
-          { className: 'task-table' },
-          React.createElement(
-            'thead',
-            null,
+          React.Fragment,
+          null,
+          loadState === 'loading' &&
+            React.createElement('p', null, 'Loading tasks…'),
+          loadState === 'error' && error &&
+            React.createElement('p', null, error),
+          loadState === 'loaded' && tasks.length === 0 &&
+            React.createElement('p', null, 'No tasks found yet.'),
+          tasks.length > 0 &&
             React.createElement(
-              'tr',
-              null,
-              React.createElement('th', null, 'Title'),
-              React.createElement('th', null, 'Status'),
-              React.createElement('th', null, 'Priority'),
-              React.createElement('th', null, 'Due'),
-              React.createElement('th', null, 'Created')
-            )
-          ),
-          React.createElement(
-            'tbody',
-            null,
-            tasks.map((task) =>
+              'table',
+              { className: 'task-table' },
               React.createElement(
-                'tr',
-                { key: task.id },
-                React.createElement('td', null, task.title),
+                'thead',
+                null,
                 React.createElement(
-                  'td',
+                  'tr',
                   null,
-                  task.isCompleted
-                    ? React.createElement('span', { className: 'pill pill-done' }, 'Completed')
-                    : React.createElement('span', { className: 'pill pill-todo' }, 'Pending')
-                ),
-                React.createElement(
-                  'td',
-                  null,
-                  task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'
-                ),
-                React.createElement(
-                  'td',
-                  null,
-                  new Date(task.createdAt).toLocaleString()
-                ),
-                React.createElement(
-                  'td',
-                  { className: 'task-actions' },
+                  React.createElement('th', null, 'Title'),
+                  React.createElement('th', null, 'Status'),
+                  React.createElement('th', null, 'Due'),
+                  React.createElement('th', null, 'Created'),
+                  React.createElement('th', null, 'Actions')
+                )
+              ),
+              React.createElement(
+                'tbody',
+                null,
+                tasks.map((task) =>
                   React.createElement(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'link',
-                      onClick: () => handleCompletionToggle(task.id, !task.isCompleted)
-                    },
-                    task.isCompleted ? 'Mark as pending' : 'Mark as completed'
-                  ),
-                  React.createElement(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'link',
-                      onClick: () => startEdit(task)
-                    },
-                    'Edit'
-                  ),
-                  React.createElement(
-                    'button',
-                    {
-                      type: 'button',
-                      className: 'link destructive',
-                      onClick: () => handleDelete(task.id)
-                    },
-                    'Delete'
+                    'tr',
+                    { key: task.id },
+                    React.createElement('td', null, task.title),
+                    React.createElement(
+                      'td',
+                      null,
+                      task.isCompleted
+                        ? React.createElement('span', { className: 'pill pill-done' }, 'Completed')
+                        : React.createElement('span', { className: 'pill pill-todo' }, 'Pending')
+                    ),
+                    React.createElement(
+                      'td',
+                      null,
+                      task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'
+                    ),
+                    React.createElement(
+                      'td',
+                      null,
+                      new Date(task.createdAt).toLocaleString()
+                    ),
+                    React.createElement(
+                      'td',
+                      { className: 'task-actions' },
+                      React.createElement(
+                        'button',
+                        {
+                          type: 'button',
+                          className: 'link',
+                          onClick: () => handleCompletionToggle(task.id, !task.isCompleted)
+                        },
+                        task.isCompleted ? 'Mark as pending' : 'Mark as completed'
+                      ),
+                      React.createElement(
+                        'button',
+                        {
+                          type: 'button',
+                          className: 'link',
+                          onClick: () => navigate({ kind: 'edit', id: task.id })
+                        },
+                        'Edit'
+                      ),
+                      React.createElement(
+                        'button',
+                        {
+                          type: 'button',
+                          className: 'link destructive',
+                          onClick: () => handleDelete(task.id)
+                        },
+                        'Delete'
+                      )
+                    )
                   )
                 )
               )
             )
-          )
-        ),
-      loadState === 'idle' &&
-        React.createElement('p', null, 'Preparing to load tasks…'),
-      React.createElement(
-        'p',
-        { style: { marginTop: '1.5rem', fontSize: '0.85rem', color: '#9ca3af' } },
-        'This view currently shows tasks fetched from the backend. Next steps will add creation, editing, deletion, and status changes from the UI.'
-      )
+        )
     )
   )
 }
