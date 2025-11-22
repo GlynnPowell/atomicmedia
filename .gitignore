@@ -1,0 +1,17 @@
+# Build artifacts (C# / .NET)
+**/bin/
+**/obj/
+
+# Node / front-end
+**/node_modules/
+src/client/dist/
+
+# User-specific / tooling caches
+*.user
+*.userprefs
+*.suo
+*.vsp
+*.vspx
+.vs/
+
+
