@@ -10,7 +10,7 @@ The focus is on clean architecture, straightforward local setup, and demonstrati
 - **Database**: SQLite (via Entity Framework Core)
 - **Cloud target**: Azure (App Service or Container Apps + managed database), described at a high level
 
-## Project structure (planned)
+## Project structure
 
 The solution is organised as a **modular monolith**: a single deployable backend with clear internal boundaries, plus a separate React client.
 
@@ -18,18 +18,16 @@ The solution is organised as a **modular monolith**: a single deployable backend
 .
 ├─ README.md
 ├─ AtomicTasks.sln                 # .NET solution
-├─ infra/                          # Optional Azure / IaC snippets (if added)
 ├─ src/
 │  ├─ server/
 │  │  ├─ AtomicTasks.Api/          # ASP.NET Core API (endpoints, startup, DI)
 │  │  ├─ AtomicTasks.Application/  # Use-cases, services, DTOs, interfaces
-│  │  ├─ AtomicTasks.Domain/       # Domain entities, value objects, enums, rules
+│  │  ├─ AtomicTasks.Domain/       # Domain entities and core rules
 │  │  └─ AtomicTasks.Infrastructure/ # EF Core, SQLite, repositories, migrations
 │  └─ client/
-│     └─ (React + TypeScript app)  # UI, API client, hooks, components
+│     └─ (React + TypeScript app)  # UI, routing, API calls, local state
 └─ tests/
-   ├─ server/AtomicTasks.Tests/    # Domain / application / API tests
-   └─ client/                      # Optional front-end tests
+   └─ server/AtomicTasks.Tests/    # Backend unit/integration tests
 ```
 
 This structure keeps responsibilities separated and makes it easy to explain how the backend could later be split into independent microservices (for example, by extracting `Tasks` into its own service).
