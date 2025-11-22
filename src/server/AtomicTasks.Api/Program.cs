@@ -48,10 +48,25 @@ var tasksGroup = app.MapGroup("/api/tasks");
 tasksGroup.MapGet("/", async (
         ITaskService service,
         bool? isCompleted,
+        DateTime? dueFrom,
+        DateTime? dueTo,
         string? search,
+        string? sortBy,
+        string? sortDirection,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken) =>
     {
-        var tasks = await service.GetTasksAsync(isCompleted, search, cancellationToken);
+        var tasks = await service.GetTasksAsync(
+            isCompleted,
+            dueFrom,
+            dueTo,
+            search,
+            sortBy,
+            sortDirection,
+            page,
+            pageSize,
+            cancellationToken);
         return Results.Ok(tasks);
     });
 

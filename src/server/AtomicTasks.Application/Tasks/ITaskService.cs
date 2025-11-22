@@ -4,7 +4,13 @@ public interface ITaskService
 {
     System.Threading.Tasks.Task<IReadOnlyList<TaskDto>> GetTasksAsync(
         bool? isCompleted,
+        DateTime? dueFrom,
+        DateTime? dueTo,
         string? search,
+        string? sortBy,
+        string? sortDirection,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default);
 
     System.Threading.Tasks.Task<TaskDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);

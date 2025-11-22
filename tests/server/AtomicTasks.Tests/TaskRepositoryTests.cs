@@ -27,7 +27,15 @@ public class TaskRepositoryTests
 
         // Act
         var created = await repository.AddAsync(task);
-        var tasks = await repository.GetTasksAsync(null, null);
+        var tasks = await repository.GetTasksAsync(
+            isCompleted: null,
+            dueFrom: null,
+            dueTo: null,
+            search: null,
+            sortBy: null,
+            sortDirection: null,
+            page: 1,
+            pageSize: 10);
 
         // Assert
         Assert.True(created.Id > 0);

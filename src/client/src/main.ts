@@ -35,7 +35,7 @@ const parseRoute = (pathname: string): Route => {
   return { kind: 'list' }
 }
 
-const App: React.FC = () => {
+export const App: React.FC = () => {
   const [route, setRoute] = useState<Route>(() => parseRoute(window.location.pathname))
   const [tasks, setTasks] = useState<Task[]>([])
   const [loadState, setLoadState] = useState<LoadState>('idle')
@@ -47,6 +47,15 @@ const App: React.FC = () => {
   const [descriptionInput, setDescriptionInput] = useState('')
   const [dueDateInput, setDueDateInput] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
+
+  // List filters & sorting
+  const [filterCompletion, setFilterCompletion] = useState<'all' | 'completed' | 'pending'>('all')
+  const [filterDueFrom, setFilterDueFrom] = useState('')
+  const [filterDueTo, setFilterDueTo] = useState('')
+  const [sortBy, setSortBy] = useState<'createdAt' | 'dueDate' | 'title'>('createdAt')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [page, setPage] = useState(1)
+  const pageSize = 10
 
   useEffect(() => {
     const handlePopState = () => {
@@ -63,7 +72,27 @@ const App: React.FC = () => {
         setLoadState('loading')
         setError(null)
 
-        const response = await fetch(`${API_BASE_URL}/tasks`)
+        const params = new URLSearchParams()
+
+        if (filterCompletion === 'completed') {
+          params.set('isCompleted', 'true')
+        } else if (filterCompletion === 'pending') {
+          params.set('isCompleted', 'false')
+        }
+
+        if (filterDueFrom) {
+          params.set('dueFrom', new Date(filterDueFrom).toISOString())
+        }
+        if (filterDueTo) {
+          params.set('dueTo', new Date(filterDueTo).toISOString())
+        }
+
+        params.set('sortBy', sortBy)
+        params.set('sortDirection', sortDirection)
+        params.set('page', String(page))
+        params.set('pageSize', String(pageSize))
+
+        const response = await fetch(`${API_BASE_URL}/tasks?${params.toString()}`)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
@@ -79,7 +108,7 @@ const App: React.FC = () => {
     }
 
     fetchTasks()
-  }, [])
+  }, [filterCompletion, filterDueFrom, filterDueTo, sortBy, sortDirection, page])
 
   const resetForm = () => {
     setEditingId(null)
@@ -279,6 +308,89 @@ const App: React.FC = () => {
             'Add new task'
           )
       ),
+      // Filters and sorting (list view only)
+      route.kind === 'list' &&
+        React.createElement(
+          'div',
+          { className: 'task-filters' },
+          React.createElement(
+            'label',
+            null,
+            'Status',
+            React.createElement(
+              'select',
+              {
+                value: filterCompletion,
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
+                  setFilterCompletion(e.target.value as typeof filterCompletion)
+                  setPage(1)
+                }
+              },
+              React.createElement('option', { value: 'all' }, 'All'),
+              React.createElement('option', { value: 'pending' }, 'Pending'),
+              React.createElement('option', { value: 'completed' }, 'Completed')
+            )
+          ),
+          React.createElement(
+            'label',
+            null,
+            'Due from',
+            React.createElement('input', {
+              type: 'date',
+              value: filterDueFrom,
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                setFilterDueFrom(e.target.value)
+                setPage(1)
+              }
+            })
+          ),
+          React.createElement(
+            'label',
+            null,
+            'Due to',
+            React.createElement('input', {
+              type: 'date',
+              value: filterDueTo,
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                setFilterDueTo(e.target.value)
+                setPage(1)
+              }
+            })
+          ),
+          React.createElement(
+            'label',
+            null,
+            'Sort by',
+            React.createElement(
+              'select',
+              {
+                value: sortBy,
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
+                  setSortBy(e.target.value as typeof sortBy)
+                  setPage(1)
+                }
+              },
+              React.createElement('option', { value: 'createdAt' }, 'Created date'),
+              React.createElement('option', { value: 'dueDate' }, 'Due date'),
+              React.createElement('option', { value: 'title' }, 'Title')
+            )
+          ),
+          React.createElement(
+            'label',
+            null,
+            'Order',
+            React.createElement(
+              'select',
+              {
+                value: sortDirection,
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setSortDirection(e.target.value as typeof sortDirection)
+              },
+              React.createElement('option', { value: 'desc' }, 'Desc'),
+              React.createElement('option', { value: 'asc' }, 'Asc')
+            )
+          )
+        ),
       // Add / Edit task view
       (route.kind === 'new' || route.kind === 'edit') &&
         React.createElement(
@@ -445,6 +557,36 @@ const App: React.FC = () => {
                 )
               )
             )
+        ),
+      route.kind === 'list' &&
+        React.createElement(
+          'div',
+          { className: 'task-pagination' },
+          React.createElement(
+            'button',
+            {
+              type: 'button',
+              className: 'secondary',
+              disabled: page === 1,
+              onClick: () => setPage(p => Math.max(1, p - 1))
+            },
+            'Previous'
+          ),
+          React.createElement(
+            'span',
+            { className: 'page-indicator' },
+            `Page ${page}`
+          ),
+          React.createElement(
+            'button',
+            {
+              type: 'button',
+              className: 'secondary',
+              disabled: tasks.length < pageSize,
+              onClick: () => setPage(p => p + 1)
+            },
+            'Next'
+          )
         )
     )
   )

@@ -228,6 +228,43 @@ body {
   margin-bottom: 1rem;
 }
 
+.task-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.task-filters label {
+  display: flex;
+  flex-direction: column;
+  color: #9ca3af;
+}
+
+.task-filters input,
+.task-filters select {
+  margin-top: 0.25rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font: inherit;
+}
+
+.task-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.task-pagination .page-indicator {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
 @media (max-width: 640px) {
   .app {
     padding: 1.75rem 1.5rem;

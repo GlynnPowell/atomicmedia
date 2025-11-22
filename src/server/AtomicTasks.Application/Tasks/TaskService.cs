@@ -13,10 +13,25 @@ public sealed class TaskService : ITaskService
 
     public async System.Threading.Tasks.Task<IReadOnlyList<TaskDto>> GetTasksAsync(
         bool? isCompleted,
+        DateTime? dueFrom,
+        DateTime? dueTo,
         string? search,
+        string? sortBy,
+        string? sortDirection,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var tasks = await _repository.GetTasksAsync(isCompleted, search, cancellationToken);
+        var tasks = await _repository.GetTasksAsync(
+            isCompleted,
+            dueFrom,
+            dueTo,
+            search,
+            sortBy,
+            sortDirection,
+            page,
+            pageSize,
+            cancellationToken);
         return tasks.Select(t => t.ToDto()).ToArray();
     }
 
