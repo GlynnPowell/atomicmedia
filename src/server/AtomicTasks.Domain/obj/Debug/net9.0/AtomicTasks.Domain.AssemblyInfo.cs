@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AtomicTasks.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+67192f7949dc41ccca6ffaa746412288045bf89a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cdd1c711fd4cfbdcc4cbaab0fb3a1a67ef78a268")]
 [assembly: System.Reflection.AssemblyProductAttribute("AtomicTasks.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AtomicTasks.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
