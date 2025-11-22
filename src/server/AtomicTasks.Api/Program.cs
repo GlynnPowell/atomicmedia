@@ -2,6 +2,7 @@ using AtomicTasks.Application.Tasks;
 using AtomicTasks.Infrastructure;
 using AtomicTasks.Infrastructure.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using DomainTaskStatus = AtomicTasks.Domain.Tasks.TaskStatus;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,9 +13,15 @@ builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:4173")
               .AllowAnyHeader()
               .AllowAnyMethod());
+});
+
+// Ensure enums are serialized/deserialized as strings (e.g. "Todo", "InProgress", "Done")
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -35,6 +42,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors();
+
+// Ensure the SQLite database and schema exist
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AtomicTasksDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 var tasksGroup = app.MapGroup("/api/tasks");
 

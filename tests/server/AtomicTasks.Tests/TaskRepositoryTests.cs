@@ -1,0 +1,42 @@
+using AtomicTasks.Infrastructure;
+using AtomicTasks.Infrastructure.Tasks;
+using Microsoft.EntityFrameworkCore;
+using DomainTask = AtomicTasks.Domain.Tasks.Task;
+using DomainTaskStatus = AtomicTasks.Domain.Tasks.TaskStatus;
+using DomainTaskPriority = AtomicTasks.Domain.Tasks.TaskPriority;
+
+namespace AtomicTasks.Tests;
+
+public class TaskRepositoryTests
+{
+    [Fact]
+    public async System.Threading.Tasks.Task AddAndGetTasks_RoundTripsWithInMemoryDatabase()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AtomicTasksDbContext>()
+            .UseInMemoryDatabase(databaseName: "tasks-tests")
+            .Options;
+
+        await using var dbContext = new AtomicTasksDbContext(options);
+        var repository = new EfTaskRepository(dbContext);
+
+        var task = new DomainTask
+        {
+            Title = "Write assessment",
+            Description = "Implement full-stack task management app",
+            Status = DomainTaskStatus.Todo,
+            Priority = DomainTaskPriority.High
+        };
+
+        // Act
+        var created = await repository.AddAsync(task);
+        var tasks = await repository.GetTasksAsync(null, null);
+
+        // Assert
+        Assert.NotEqual(Guid.Empty, created.Id);
+        Assert.Single(tasks);
+        Assert.Equal("Write assessment", tasks[0].Title);
+    }
+}
+
+

@@ -1,0 +1,46 @@
+
+1
+
+Automatic Zoom
+Technical Assessment: Task Management Application
+Overview
+Welcome to our technical assessment!
+This exercise is designed to evaluate your practical skills using modern web technologies.
+We're looking for clean code, thoughtful design, and an understanding of best practices.
+Use of AI Tools
+At atomic, we embrace the use of AI to optimise our output, enhance creativity, and boost
+developer productivity.
+We believe in leveraging the best tools available to deliver exceptional results, and we
+recognise that AI-powered assistants are becoming an integral part of modern development
+workflows.
+Therefore, you are encouraged to use AI-powered coding assistants (e.g., GitHub Copilot,
+ChatGPT, etc.) as part of your development process for this assessment.
+We're interested in seeing how you utilise these powerful tools to solve problems efficiently.
+While these tools can be highly effective, please ensure the solution primarily reflects
+your problem-solving approach and understanding.
+We encourage you to use them as a valuable assistant, not a replacement for your own
+critical thinking.
+If you utilise AI tools for significant portions (e.g., generating entire functions or architectural
+patterns), please make a brief note in your README.md or as a code comment indicating
+where and how AI was used.
+This transparency helps us understand your workflow and how you integrate AI into your
+development process.
+Time Commitment & Expectations
+We understand you have other commitments, and we want this assessment to be fair and
+respectful of your time.
+We anticipate this test will take approximately 2-3 hours of focused work to complete.
+Please do not spend more than 4 hours on this assessment.
+Our primary goal is to see your approach to problem-solving, your understanding of the core
+technologies, and your coding style.
+A perfectly polished or fully-featured application is not expected within this timeframe. Focus
+on demonstrating your best practices for a functional and well-structured solution.
+Submission Guidelines
+1. Repository:
+a. Create a public or private Git repository for your solution.
+b. If private, please invite myself via email.
+2. Instructions: Ensure your README.md is thorough enough for us to set up and
+run your application without needing to ask clarifying questions.
+After reviewing it, we'd be keen to hear your thought process, so please be prepared to
+briefly walk us through your work in a follow-up conversation.
+If you have any questions during the assessment, please don't hesitate to reach out.
+We look forward to reviewing your solution!

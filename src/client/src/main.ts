@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import './style.css'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api'
+
 type TaskStatus = 'Todo' | 'InProgress' | 'Done'
 type TaskPriority = 'Low' | 'Medium' | 'High'
 
@@ -37,7 +39,7 @@ const App: React.FC = () => {
         setLoadState('loading')
         setError(null)
 
-        const response = await fetch('/api/tasks')
+        const response = await fetch(`${API_BASE_URL}/tasks`)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
@@ -92,7 +94,7 @@ const App: React.FC = () => {
 
     try {
       const isEdit = Boolean(editingId)
-      const url = isEdit ? `/api/tasks/${editingId}` : '/api/tasks'
+      const url = isEdit ? `${API_BASE_URL}/tasks/${editingId}` : `${API_BASE_URL}/tasks`
       const method = isEdit ? 'PUT' : 'POST'
 
       const body: any = {
@@ -145,7 +147,7 @@ const App: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/api/tasks/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
         method: 'DELETE'
       })
       if (!response.ok && response.status !== 404) {
@@ -164,7 +166,7 @@ const App: React.FC = () => {
 
   const handleStatusChange = async (id: string, status: TaskStatus) => {
     try {
-      const response = await fetch(`/api/tasks/${id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/tasks/${id}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'

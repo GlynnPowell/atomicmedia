@@ -69,16 +69,28 @@ From the repository root:
 
 This “modular monolith” layout is intentionally simple to run as a single service while still reflecting microservice-friendly boundaries.
 
+### Known limitations and future improvements
+
+- **Authentication/authorisation**: The app is intentionally unauthenticated; in a real system you would integrate with an identity provider and scope tasks per user.
+- **Validation and error handling**: Only basic validation is implemented (primarily around titles). With more time, richer domain validation and a consistent problem-details contract would be added.
+- **Testing**: The current test suite covers mapping logic and repository integration; additional API-level tests and front-end tests would be the next focus.
+- **Persistence**: SQLite is sufficient for this assessment; in production you would use a managed database (e.g. Azure SQL) and apply migrations as part of deployment.
+
 ## Deployment to Azure (outline)
 
-While Azure deployment is not required to run the app locally, the intended approach is:
+Azure deployment is **not required** to run or review this assessment, but a simple path would be:
 
-- **Compute**: Deploy the backend as a containerised app to Azure App Service or Azure Container Apps.
-- **Data**: Use Azure SQL or Azure Database for PostgreSQL as the managed database analogue to local SQLite.
-- **Configuration**: Store connection strings and secrets in environment variables, ideally backed by Azure Key Vault.
-- **IaC (optional)**: A small Bicep or Terraform template (under `infra/`) can declare the App Service/Container App, database, and supporting resources.
+- **Compute**: Deploy the backend to **Azure App Service** as a .NET 9 application.
+- **Data**: Use **Azure SQL Database** as the managed database, with the EF Core migrations applied at deploy time or via a one-off migration step.
+- **Configuration**:
+  - Store the connection string in App Service configuration as `ConnectionStrings:DefaultConnection`.
+  - For production secrets, prefer Azure Key Vault referenced from App Service settings.
+- **Frontend**: Either
+  - Serve the built React app from Azure Static Web Apps or Azure Storage Static Website, pointing `VITE_API_BASE_URL` at the App Service URL, or
+  - Host the frontend from the same App Service (e.g. as static files) and keep the API under `/api`.
+- **IaC (optional)**: With more time, a small Bicep or Terraform template (under `infra/`) could declaratively create the App Service, Azure SQL instance, and supporting resources.
 
-The repository will include a short “how this would be deployed” note rather than a full production-grade Azure setup, to keep the assessment focused on code and architecture.
+The goal here is to show a clear path to Azure without over-investing in cloud infrastructure for the purposes of this coding exercise.
 
 ## Use of AI tools (Cursor + ChatGPT-5)
 
@@ -97,14 +109,11 @@ The following TODO list captures the high-level plan used to tackle the assessme
 
 1. **Clarify requirements** – Extract assessment requirements and constraints (features, tech constraints, AI usage rules, submission format). *(Completed)*
 2. **Choose stack & layout** – Decide on React + TypeScript frontend, .NET 9 API backend, SQLite database, and the project structure above. *(Completed)*
-3. **Design architecture** – Finalise the modular monolith architecture with clear `Domain`, `Application`, `Infrastructure`, and `Api` boundaries, and explain how it could evolve into microservices. *(In progress)*
-4. **Data model & API surface** – Define the `Task` domain model (entities, DTOs, enums) and REST API endpoints, including validation rules.
-5. **Backend core implementation** – Implement task CRUD, business rules, persistence with SQLite, error handling, and configuration for local development.
-6. **Frontend core implementation** – Build the React + TypeScript UI (task list, create/edit/delete, status changes, filtering, and UX details like loading and error states).
-7. **Testing** – Add essential tests (unit tests for domain and application logic; a small number of integration/API tests).
-8. **Azure notes** – Document an outline for deploying to Azure, including configuration via environment variables and Key Vault.
-9. **Docs & polish** – Finalise this README with concrete run instructions, record trade-offs and future improvements, and do a final UX and code cleanup pass.
-
-This README will be updated as each step is completed.
-
+3. **Design architecture** – Finalise the modular monolith architecture with clear `Domain`, `Application`, `Infrastructure`, and `Api` boundaries, and explain how it could evolve into microservices. *(Completed)*
+4. **Data model & API surface** – Define the `Task` domain model (entities, DTOs, enums) and REST API endpoints, including validation rules. *(Completed)*
+5. **Backend core implementation** – Implement task CRUD, business rules, persistence with SQLite, error handling, and configuration for local development. *(Completed)*
+6. **Frontend core implementation** – Build the React + TypeScript UI (task list, create/edit/delete, status changes, filtering, and UX details like loading and error states). *(Completed)*
+7. **Testing** – Add essential tests (unit tests for domain and application logic; a small number of integration-style tests using the EF Core repository). *(Completed)*
+8. **Azure notes** – Document an outline for deploying to Azure, including configuration via environment variables and Key Vault. *(Completed)*
+9. **Docs & polish** – Finalise this README with concrete run instructions, record trade-offs and future improvements, and do a final UX and code cleanup pass. *(In progress)*
 

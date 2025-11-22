@@ -4,6 +4,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Avoid generating a Windows .exe host; run as 'dotnet AtomicTasks.Api.dll' instead.
+         This helps on environments where executing .exe files from the source tree is blocked. -->
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>
