@@ -31,6 +31,8 @@ public class TaskRepositoryTests
             isCompleted: null,
             dueFrom: null,
             dueTo: null,
+            createdBy: null,
+            assignedTo: null,
             search: null,
             sortBy: null,
             sortDirection: null,

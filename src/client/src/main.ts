@@ -251,6 +251,9 @@ export const App: React.FC = () => {
       if (loadState === 'idle') {
         setLoadState('loaded')
       }
+      // After a successful save, return to the list view so the new/updated
+      // task is immediately visible (and to align with the E2E flows).
+      navigate({ kind: 'list' })
     } catch (err) {
       console.error(err)
       setFormError('Unable to save the task. Please try again.')
