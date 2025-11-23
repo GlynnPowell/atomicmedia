@@ -15,6 +15,8 @@ public sealed class TaskService : ITaskService
         bool? isCompleted,
         DateTime? dueFrom,
         DateTime? dueTo,
+        string? createdBy,
+        string? assignedTo,
         string? search,
         string? sortBy,
         string? sortDirection,
@@ -26,6 +28,8 @@ public sealed class TaskService : ITaskService
             isCompleted,
             dueFrom,
             dueTo,
+            createdBy,
+            assignedTo,
             search,
             sortBy,
             sortDirection,
@@ -48,7 +52,16 @@ public sealed class TaskService : ITaskService
             Title = request.Title.Trim(),
             Description = request.Description,
             DueDate = request.DueDate,
-            IsCompleted = false
+            IsCompleted = false,
+            // For this assessment we don't model real users, but we still
+            // allow the optional CreatedBy/AssignedTo fields to be set to
+            // demonstrate the extended data model from the bonus section.
+            CreatedBy = string.IsNullOrWhiteSpace(request.CreatedBy)
+                ? "demo-user"
+                : request.CreatedBy.Trim(),
+            AssignedTo = string.IsNullOrWhiteSpace(request.AssignedTo)
+                ? "demo-user"
+                : request.AssignedTo.Trim()
         };
 
         var created = await _repository.AddAsync(entity, cancellationToken);
@@ -67,6 +80,12 @@ public sealed class TaskService : ITaskService
         existing.Description = request.Description;
         existing.IsCompleted = request.IsCompleted;
         existing.DueDate = request.DueDate;
+        existing.CreatedBy = string.IsNullOrWhiteSpace(request.CreatedBy)
+            ? null
+            : request.CreatedBy.Trim();
+        existing.AssignedTo = string.IsNullOrWhiteSpace(request.AssignedTo)
+            ? null
+            : request.AssignedTo.Trim();
 
         await _repository.UpdateAsync(existing, cancellationToken);
 

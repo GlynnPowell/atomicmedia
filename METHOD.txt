@@ -28,14 +28,18 @@ This keeps local development and deployment simple (one backend, one frontend), 
 
 - **Domain layer (`AtomicTasks.Domain`)**
   - Contains the `Task` entity and core rules.
-  - Final shape aligned strictly to the assessment spec:
-    - `int Id`
-    - `bool IsCompleted` (default `false`)
-    - `string Title` (required, max length **100**)
-    - `string? Description`
-    - `DateTime? DueDate`
-    - `DateTime CreatedAt`
-    - `DateTime UpdatedAt`
+  - Final shape aligned strictly to the assessment spec, with optional bonus fields:
+    - Required by spec:
+      - `int Id`
+      - `bool IsCompleted` (default `false`)
+      - `string Title` (required, max length **100**)
+      - `string? Description`
+      - `DateTime? DueDate`
+    - Bonus / extended model:
+      - `DateTime CreatedAt`
+      - `DateTime UpdatedAt`
+      - `string? CreatedBy`
+      - `string? AssignedTo`
 
 - **Application layer (`AtomicTasks.Application`)**
   - Contains the use‑cases and orchestration logic.
@@ -180,7 +184,68 @@ End‑to‑end tests use **Playwright** and live under `src/client/tests/e2e`:
 These tests talk to the real API and frontend dev server, providing confidence that the main user journeys work as expected.
 
 
-5. Use of AI tools (Cursor + ChatGPT‑5)
+5. Scaling, performance, and architecture considerations
+--------------------------------------------------------
+
+Although the submitted solution is a single modular monolith, it was designed so that it could scale out relatively easily:
+
+- **Scaling the API**:
+  - The API is stateless; all state lives in the database, so horizontal scaling (multiple instances behind a load balancer) is straightforward.
+  - In a cloud environment (e.g. Azure App Service), you would simply increase instance count or use autoscale rules based on CPU/latency.
+- **Scaling the database**:
+  - For the assessment, SQLite keeps local setup trivial.
+  - In production, this would map neatly to a managed relational database (Azure SQL / PostgreSQL) with:
+    - Proper indexing on `IsCompleted`, `DueDate`, `CreatedAt`, and `Title` (for search/sorting).
+    - Connection pooling and potentially read replicas for heavy read workloads.
+- **Likely bottlenecks and how to address them**:
+  - For very large task lists, the main bottleneck would be the database scan and network transfer.
+  - The implementation already uses **server-side pagination** and filtering to avoid returning unbounded result sets.
+  - If queries started to dominate, you would:
+    - Add or tune indexes for common filter/sort combinations.
+    - Consider caching frequent query results at the API layer (memory cache / Redis).
+    - Introduce background jobs for heavy operations instead of synchronous requests.
+- **N+1 queries**:
+  - With the current model there are no navigation collections, so there is no N+1 issue in the usual ORM sense.
+  - If `Task` were later related to Users or Projects, the repository would explicitly use `Include`/`ThenInclude` or projection DTOs to avoid N+1 patterns.
+- **Caching and indexing ideas**:
+  - Indexes: `(IsCompleted, DueDate)`, `(CreatedAt)`, and perhaps a functional index for lowercase `Title` search.
+  - Caching: short-lived (e.g. 30–60s) cached responses for common filter presets or dashboard views, invalidated on writes.
+  - At the client level, a more advanced state management layer (see below) could cache recent API responses and avoid refetching on simple navigations.
+
+
+6. Frontend state management options
+------------------------------------
+
+For the assessment, React’s built-in state (`useState`/`useEffect`) is used, which is perfectly adequate for a single-page tasks screen. If the application grew, a more robust state story would be appropriate:
+
+- **Redux Toolkit**:
+  - Centralised store for tasks, filters, and UI state.
+  - RTK Query could manage data fetching, caching, and invalidation for the `/tasks` endpoints.
+- **React Context + reducer pattern**:
+  - Lightweight alternative to Redux for a medium-sized app.
+  - A `TasksProvider` could expose task state and actions (`loadTasks`, `createTask`, `updateTask`, `deleteTask`) to any component.
+- **Service-based abstraction**:
+  - A dedicated `taskApi` module encapsulating all HTTP calls and data mapping.
+  - UI components depend on the service instead of `fetch` directly, which makes it easier to swap transport or add cross-cutting features (logging, retry, backoff).
+
+These options were consciously not introduced to keep the codebase lean for the assessment, but the current structure would allow them to be layered in without rewriting the core features.
+
+
+7. CI and quality gates (if this were extended)
+-----------------------------------------------
+
+No CI pipeline is included in the repo, but the structure is designed to be CI-friendly. A simple GitHub Actions pipeline might:
+
+- Restore and build the .NET solution.
+- Run `dotnet test` on `AtomicTasks.sln`.
+- Set up Node + PNPM/NPM, run `npm install` in `src/client`, then `npm test`.
+- Optionally run Playwright E2E tests against a test deployment or a composed environment.
+- Enforce formatting and linting (e.g. `dotnet format`, ESLint/Prettier) as additional quality gates.
+
+This would provide quick feedback on every push and help keep the main branch always releasable.
+
+
+8. Use of AI tools (Cursor + ChatGPT‑5)
 --------------------------------------
 
 The assessment explicitly allowed (and asked about) the use of AI tools. This section documents how they were used.

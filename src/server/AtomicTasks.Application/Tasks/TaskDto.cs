@@ -15,6 +15,10 @@ public sealed class TaskDto
     public DateTime CreatedAt { get; init; }
 
     public DateTime UpdatedAt { get; init; }
+
+    public string? CreatedBy { get; init; }
+
+    public string? AssignedTo { get; init; }
 }
 
 

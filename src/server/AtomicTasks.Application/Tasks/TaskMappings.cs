@@ -13,7 +13,9 @@ public static class TaskMappings
             IsCompleted = entity.IsCompleted,
             DueDate = entity.DueDate,
             CreatedAt = entity.CreatedAt,
-            UpdatedAt = entity.UpdatedAt
+            UpdatedAt = entity.UpdatedAt,
+            CreatedBy = entity.CreatedBy,
+            AssignedTo = entity.AssignedTo
         };
 }
 

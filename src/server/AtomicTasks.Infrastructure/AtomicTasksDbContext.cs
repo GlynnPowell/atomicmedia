@@ -22,6 +22,8 @@ public class AtomicTasksDbContext : DbContext
         task.ToTable("Tasks");
 
         task.HasKey(t => t.Id);
+        task.Property(t => t.Id)
+            .ValueGeneratedOnAdd();
 
         task.Property(t => t.Title)
             .IsRequired()
@@ -39,6 +41,12 @@ public class AtomicTasksDbContext : DbContext
 
         task.Property(t => t.UpdatedAt)
             .IsRequired();
+
+        task.Property(t => t.CreatedBy)
+            .HasMaxLength(100);
+
+        task.Property(t => t.AssignedTo)
+            .HasMaxLength(100);
     }
 }
 

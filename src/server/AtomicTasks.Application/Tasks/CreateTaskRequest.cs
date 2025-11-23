@@ -7,4 +7,8 @@ public sealed class CreateTaskRequest
     public string? Description { get; init; }
 
     public DateTime? DueDate { get; init; }
+
+    public string? CreatedBy { get; init; }
+
+    public string? AssignedTo { get; init; }
 }

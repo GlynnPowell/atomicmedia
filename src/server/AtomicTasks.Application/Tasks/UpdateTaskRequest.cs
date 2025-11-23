@@ -9,4 +9,8 @@ public sealed class UpdateTaskRequest
     public bool IsCompleted { get; init; }
 
     public DateTime? DueDate { get; init; }
+
+    public string? CreatedBy { get; init; }
+
+    public string? AssignedTo { get; init; }
 }

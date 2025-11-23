@@ -6,6 +6,8 @@ public interface ITaskService
         bool? isCompleted,
         DateTime? dueFrom,
         DateTime? dueTo,
+        string? createdBy,
+        string? assignedTo,
         string? search,
         string? sortBy,
         string? sortDirection,

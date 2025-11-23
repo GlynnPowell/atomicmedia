@@ -56,7 +56,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(1),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -65,7 +67,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = true,
                 DueDate = now.AddDays(-1),
                 CreatedAt = now.AddDays(-3),
-                UpdatedAt = now.AddDays(-1)
+                UpdatedAt = now.AddDays(-1),
+                CreatedBy = "candidate",
+                AssignedTo = "reviewer"
             },
             new()
             {
@@ -74,7 +78,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(3),
                 CreatedAt = now.AddDays(-2),
-                UpdatedAt = now.AddDays(-2)
+                UpdatedAt = now.AddDays(-2),
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -83,7 +89,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(2),
                 CreatedAt = now.AddDays(-1),
-                UpdatedAt = now.AddDays(-1)
+                UpdatedAt = now.AddDays(-1),
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -92,7 +100,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(5),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -101,7 +111,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = true,
                 DueDate = now.AddDays(-2),
                 CreatedAt = now.AddDays(-4),
-                UpdatedAt = now.AddDays(-2)
+                UpdatedAt = now.AddDays(-2),
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -110,7 +122,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = true,
                 DueDate = now.AddDays(-3),
                 CreatedAt = now.AddDays(-5),
-                UpdatedAt = now.AddDays(-3)
+                UpdatedAt = now.AddDays(-3),
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -119,7 +133,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(4),
                 CreatedAt = now.AddDays(-1),
-                UpdatedAt = now.AddDays(-1)
+                UpdatedAt = now.AddDays(-1),
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -128,7 +144,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = null,
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -137,7 +155,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = true,
                 DueDate = now.AddDays(-1),
                 CreatedAt = now.AddDays(-6),
-                UpdatedAt = now.AddDays(-1)
+                UpdatedAt = now.AddDays(-1),
+                CreatedBy = "candidate",
+                AssignedTo = "reviewer"
             },
             new()
             {
@@ -146,7 +166,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(2),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -155,7 +177,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = true,
                 DueDate = now.AddDays(-4),
                 CreatedAt = now.AddDays(-7),
-                UpdatedAt = now.AddDays(-4)
+                UpdatedAt = now.AddDays(-4),
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -164,7 +188,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(7),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -173,7 +199,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(6),
                 CreatedAt = now.AddDays(-1),
-                UpdatedAt = now.AddDays(-1)
+                UpdatedAt = now.AddDays(-1),
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -182,7 +210,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = true,
                 DueDate = now.AddDays(-2),
                 CreatedAt = now.AddDays(-8),
-                UpdatedAt = now.AddDays(-2)
+                UpdatedAt = now.AddDays(-2),
+                CreatedBy = "candidate",
+                AssignedTo = "reviewer"
             },
             new()
             {
@@ -191,7 +221,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(1),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -200,7 +232,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = true,
                 DueDate = now.AddDays(-5),
                 CreatedAt = now.AddDays(-9),
-                UpdatedAt = now.AddDays(-5)
+                UpdatedAt = now.AddDays(-5),
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -209,7 +243,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(1),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -218,7 +254,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(1),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -227,7 +265,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(1),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             },
             new()
             {
@@ -236,7 +276,9 @@ using (var scope = app.Services.CreateScope())
                 IsCompleted = false,
                 DueDate = now.AddDays(1),
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                CreatedBy = "candidate",
+                AssignedTo = "candidate"
             }
         };
 
@@ -247,11 +289,35 @@ using (var scope = app.Services.CreateScope())
 
 var tasksGroup = app.MapGroup("/api/tasks");
 
+// Helper endpoint to expose distinct CreatedBy/AssignedTo values for dropdown filters
+tasksGroup.MapGet("/filter-values", async (
+        AtomicTasksDbContext db,
+        CancellationToken cancellationToken) =>
+    {
+        var createdBy = await db.Tasks
+            .Where(t => t.CreatedBy != null && t.CreatedBy != string.Empty)
+            .Select(t => t.CreatedBy!)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync(cancellationToken);
+
+        var assignedTo = await db.Tasks
+            .Where(t => t.AssignedTo != null && t.AssignedTo != string.Empty)
+            .Select(t => t.AssignedTo!)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync(cancellationToken);
+
+        return Results.Ok(new { createdBy, assignedTo });
+    });
+
 tasksGroup.MapGet("/", async (
         ITaskService service,
         bool? isCompleted,
         DateTime? dueFrom,
         DateTime? dueTo,
+        string? createdBy,
+        string? assignedTo,
         string? search,
         string? sortBy,
         string? sortDirection,
@@ -263,6 +329,8 @@ tasksGroup.MapGet("/", async (
             isCompleted,
             dueFrom,
             dueTo,
+            createdBy,
+            assignedTo,
             search,
             sortBy,
             sortDirection,

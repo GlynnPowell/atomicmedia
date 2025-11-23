@@ -17,4 +17,9 @@ public class Task
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    // Optional user-related fields (bonus section of the brief)
+    public string? CreatedBy { get; set; }
+
+    public string? AssignedTo { get; set; }
 }

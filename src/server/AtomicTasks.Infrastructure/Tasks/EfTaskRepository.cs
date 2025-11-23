@@ -18,6 +18,8 @@ public sealed class EfTaskRepository : ApplicationTaskRepository
         bool? isCompleted,
         DateTime? dueFrom,
         DateTime? dueTo,
+        string? createdBy,
+        string? assignedTo,
         string? search,
         string? sortBy,
         string? sortDirection,
@@ -42,6 +44,20 @@ public sealed class EfTaskRepository : ApplicationTaskRepository
         {
             var toDate = dueTo.Value.Date.AddDays(1).AddTicks(-1);
             query = query.Where(t => t.DueDate <= toDate);
+        }
+
+        if (!string.IsNullOrWhiteSpace(createdBy))
+        {
+            var createdByTerm = createdBy.Trim();
+            query = query.Where(t =>
+                t.CreatedBy != null && EF.Functions.Like(t.CreatedBy, $"%{createdByTerm}%"));
+        }
+
+        if (!string.IsNullOrWhiteSpace(assignedTo))
+        {
+            var assignedToTerm = assignedTo.Trim();
+            query = query.Where(t =>
+                t.AssignedTo != null && EF.Functions.Like(t.AssignedTo, $"%{assignedToTerm}%"));
         }
 
         if (!string.IsNullOrWhiteSpace(search))

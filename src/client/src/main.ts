@@ -12,6 +12,8 @@ type Task = {
   dueDate?: string | null
   createdAt: string
   updatedAt: string
+  createdBy?: string | null
+  assignedTo?: string | null
 }
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error'
@@ -47,15 +49,22 @@ export const App: React.FC = () => {
   const [descriptionInput, setDescriptionInput] = useState('')
   const [dueDateInput, setDueDateInput] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
+  const [createdByInput, setCreatedByInput] = useState('')
+  const [assignedToInput, setAssignedToInput] = useState('')
 
   // List filters & sorting
   const [filterCompletion, setFilterCompletion] = useState<'all' | 'completed' | 'pending'>('all')
   const [filterDueFrom, setFilterDueFrom] = useState('')
   const [filterDueTo, setFilterDueTo] = useState('')
+  const [filterCreatedBy, setFilterCreatedBy] = useState('')
+  const [filterAssignedTo, setFilterAssignedTo] = useState('')
   const [sortBy, setSortBy] = useState<'createdAt' | 'dueDate' | 'title'>('createdAt')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [page, setPage] = useState(1)
   const pageSize = 10
+
+  const [createdByOptions, setCreatedByOptions] = useState<string[]>([])
+  const [assignedToOptions, setAssignedToOptions] = useState<string[]>([])
 
   useEffect(() => {
     const handlePopState = () => {
@@ -64,6 +73,28 @@ export const App: React.FC = () => {
 
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  // Load distinct filter values for CreatedBy / AssignedTo
+  useEffect(() => {
+    const fetchFilterValues = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/tasks/filter-values`)
+        if (!response.ok) return
+
+        const data = (await response.json()) as {
+          createdBy: string[]
+          assignedTo: string[]
+        }
+
+        setCreatedByOptions(data.createdBy ?? [])
+        setAssignedToOptions(data.assignedTo ?? [])
+      } catch {
+        // Best-effort only; fall back to free-text filters
+      }
+    }
+
+    fetchFilterValues()
   }, [])
 
   useEffect(() => {
@@ -87,6 +118,14 @@ export const App: React.FC = () => {
           params.set('dueTo', new Date(filterDueTo).toISOString())
         }
 
+        if (filterCreatedBy) {
+          params.set('createdBy', filterCreatedBy)
+        }
+
+        if (filterAssignedTo) {
+          params.set('assignedTo', filterAssignedTo)
+        }
+
         params.set('sortBy', sortBy)
         params.set('sortDirection', sortDirection)
         params.set('page', String(page))
@@ -108,13 +147,15 @@ export const App: React.FC = () => {
     }
 
     fetchTasks()
-  }, [filterCompletion, filterDueFrom, filterDueTo, sortBy, sortDirection, page])
+  }, [filterCompletion, filterDueFrom, filterDueTo, filterCreatedBy, filterAssignedTo, sortBy, sortDirection, page])
 
   const resetForm = () => {
     setEditingId(null)
     setTitleInput('')
     setDescriptionInput('')
     setDueDateInput('')
+    setCreatedByInput('')
+    setAssignedToInput('')
     setFormError(null)
   }
 
@@ -141,6 +182,8 @@ export const App: React.FC = () => {
         setTitleInput(task.title)
         setDescriptionInput(task.description ?? '')
         setDueDateInput(task.dueDate ? task.dueDate.substring(0, 10) : '')
+        setCreatedByInput(task.createdBy ?? '')
+        setAssignedToInput(task.assignedTo ?? '')
         setFormError(null)
       }
     } else {
@@ -174,7 +217,9 @@ export const App: React.FC = () => {
       const body: any = {
         title: trimmedTitle,
         description: descriptionInput || null,
-        dueDate: dueDateInput ? new Date(dueDateInput).toISOString() : null
+        dueDate: dueDateInput ? new Date(dueDateInput).toISOString() : null,
+        createdBy: createdByInput || null,
+        assignedTo: assignedToInput || null
       }
 
       if (isEdit) {
@@ -251,7 +296,9 @@ export const App: React.FC = () => {
           title: existing.title,
           description: existing.description,
           isCompleted,
-          dueDate: existing.dueDate
+          dueDate: existing.dueDate,
+          createdBy: existing.createdBy ?? null,
+          assignedTo: existing.assignedTo ?? null
         })
       })
 
@@ -360,6 +407,44 @@ export const App: React.FC = () => {
           React.createElement(
             'label',
             null,
+            'Created by',
+            React.createElement(
+              'select',
+              {
+                value: filterCreatedBy,
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
+                  setFilterCreatedBy(e.target.value)
+                  setPage(1)
+                }
+              },
+              React.createElement('option', { value: '' }, 'All'),
+              createdByOptions.map(option =>
+                React.createElement('option', { key: option, value: option }, option)
+              )
+            )
+          ),
+          React.createElement(
+            'label',
+            null,
+            'Assigned to',
+            React.createElement(
+              'select',
+              {
+                value: filterAssignedTo,
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
+                  setFilterAssignedTo(e.target.value)
+                  setPage(1)
+                }
+              },
+              React.createElement('option', { value: '' }, 'All'),
+              assignedToOptions.map(option =>
+                React.createElement('option', { key: option, value: option }, option)
+              )
+            )
+          ),
+          React.createElement(
+            'label',
+            null,
             'Sort by',
             React.createElement(
               'select',
@@ -432,6 +517,34 @@ export const App: React.FC = () => {
             { className: 'task-form-row' },
             React.createElement(
               'label',
+              null,
+              'Created by',
+              React.createElement('input', {
+                type: 'text',
+                value: createdByInput,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCreatedByInput(e.target.value),
+                disabled: isSubmitting
+              })
+            ),
+            React.createElement(
+              'label',
+              null,
+              'Assigned to',
+              React.createElement('input', {
+                type: 'text',
+                value: assignedToInput,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  setAssignedToInput(e.target.value),
+                disabled: isSubmitting
+              })
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'task-form-row' },
+            React.createElement(
+              'label',
               { className: 'task-form-description' },
               'Description',
               React.createElement('textarea', {
@@ -493,7 +606,9 @@ export const App: React.FC = () => {
                   React.createElement('th', null, 'Title'),
                   React.createElement('th', null, 'Status'),
                   React.createElement('th', null, 'Due'),
-                  React.createElement('th', null, 'Created'),
+                    React.createElement('th', null, 'Created'),
+                    React.createElement('th', null, 'Created by'),
+                    React.createElement('th', null, 'Assigned to'),
                   React.createElement('th', null, 'Actions')
                 )
               ),
@@ -521,6 +636,16 @@ export const App: React.FC = () => {
                       'td',
                       null,
                       new Date(task.createdAt).toLocaleString()
+                    ),
+                    React.createElement(
+                      'td',
+                      null,
+                      task.createdBy ?? '—'
+                    ),
+                    React.createElement(
+                      'td',
+                      null,
+                      task.assignedTo ?? '—'
                     ),
                     React.createElement(
                       'td',

@@ -5,10 +5,25 @@ import userEvent from '@testing-library/user-event'
 import { App } from './main'
 
 const mockFetch = (tasks: any[]) => {
-  vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-    ok: true,
-    json: async () => tasks
-  } as any)
+  vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
+    const url = input.toString()
+
+    if (url.includes('/tasks/filter-values')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          createdBy: [],
+          assignedTo: []
+        })
+      } as any)
+    }
+
+    // Default: task list
+    return Promise.resolve({
+      ok: true,
+      json: async () => tasks
+    } as any)
+  })
 }
 
 describe('App', () => {
