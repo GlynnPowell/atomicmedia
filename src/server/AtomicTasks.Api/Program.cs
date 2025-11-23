@@ -2,6 +2,7 @@ using AtomicTasks.Application.Tasks;
 using AtomicTasks.Infrastructure;
 using AtomicTasks.Infrastructure.Tasks;
 using Microsoft.EntityFrameworkCore;
+using DomainTask = AtomicTasks.Domain.Tasks.Task;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,11 +37,212 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors();
 
-// Ensure the SQLite database and schema exist
+// Ensure the SQLite database and schema exist and seed initial tasks for easier testing
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AtomicTasksDbContext>();
     dbContext.Database.EnsureCreated();
+
+    if (!dbContext.Tasks.Any())
+    {
+        var now = DateTime.UtcNow;
+
+        var seedTasks = new List<DomainTask>
+        {
+            new()
+            {
+                Title = "Write technical assessment",
+                Description = "Complete the Atomic Tasks full-stack assessment.",
+                IsCompleted = false,
+                DueDate = now.AddDays(1),
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Review requirements PDF",
+                Description = "Re-read the assessment PDF and confirm all must-haves are covered.",
+                IsCompleted = true,
+                DueDate = now.AddDays(-1),
+                CreatedAt = now.AddDays(-3),
+                UpdatedAt = now.AddDays(-1)
+            },
+            new()
+            {
+                Title = "Refactor TaskService",
+                Description = "Tidy up service logic and validation before submission.",
+                IsCompleted = false,
+                DueDate = now.AddDays(3),
+                CreatedAt = now.AddDays(-2),
+                UpdatedAt = now.AddDays(-2)
+            },
+            new()
+            {
+                Title = "Polish React UI",
+                Description = "Check responsive layout, spacing, and colours.",
+                IsCompleted = false,
+                DueDate = now.AddDays(2),
+                CreatedAt = now.AddDays(-1),
+                UpdatedAt = now.AddDays(-1)
+            },
+            new()
+            {
+                Title = "Add filtering and sorting tests",
+                Description = "Extend tests to cover list filters and ordering.",
+                IsCompleted = false,
+                DueDate = now.AddDays(5),
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Write README notes",
+                Description = "Ensure setup and run instructions are clear for the examiner.",
+                IsCompleted = true,
+                DueDate = now.AddDays(-2),
+                CreatedAt = now.AddDays(-4),
+                UpdatedAt = now.AddDays(-2)
+            },
+            new()
+            {
+                Title = "Implement pagination",
+                Description = "Make sure long task lists are easy to navigate.",
+                IsCompleted = true,
+                DueDate = now.AddDays(-3),
+                CreatedAt = now.AddDays(-5),
+                UpdatedAt = now.AddDays(-3)
+            },
+            new()
+            {
+                Title = "Add Playwright E2E tests",
+                Description = "Cover create and toggle completion flows end-to-end.",
+                IsCompleted = false,
+                DueDate = now.AddDays(4),
+                CreatedAt = now.AddDays(-1),
+                UpdatedAt = now.AddDays(-1)
+            },
+            new()
+            {
+                Title = "Hook up Vitest in CI (future)",
+                Description = "Plan how unit tests would run in a pipeline.",
+                IsCompleted = false,
+                DueDate = null,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Review domain model alignment",
+                Description = "Double-check Id, Title, IsCompleted, and DueDate match the spec.",
+                IsCompleted = true,
+                DueDate = now.AddDays(-1),
+                CreatedAt = now.AddDays(-6),
+                UpdatedAt = now.AddDays(-1)
+            },
+            new()
+            {
+                Title = "Test validation errors",
+                Description = "Confirm title max length and required field behaviour.",
+                IsCompleted = false,
+                DueDate = now.AddDays(2),
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Add sample completed task",
+                Description = "Demonstrate completed task styling and toggle behaviour.",
+                IsCompleted = true,
+                DueDate = now.AddDays(-4),
+                CreatedAt = now.AddDays(-7),
+                UpdatedAt = now.AddDays(-4)
+            },
+            new()
+            {
+                Title = "Investigate optional features",
+                Description = "Capture a few stretch ideas in METHOD.txt.",
+                IsCompleted = false,
+                DueDate = now.AddDays(7),
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Try different filters",
+                Description = "Ensure combinations of status and date filters work.",
+                IsCompleted = false,
+                DueDate = now.AddDays(6),
+                CreatedAt = now.AddDays(-1),
+                UpdatedAt = now.AddDays(-1)
+            },
+            new()
+            {
+                Title = "Check API error handling",
+                Description = "Verify 404s and validation problems are returned correctly.",
+                IsCompleted = true,
+                DueDate = now.AddDays(-2),
+                CreatedAt = now.AddDays(-8),
+                UpdatedAt = now.AddDays(-2)
+            },
+            new()
+            {
+                Title = "Manual smoke test",
+                Description = "Run through the UI flows as if you were the examiner.",
+                IsCompleted = false,
+                DueDate = now.AddDays(1),
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Clean up dead code",
+                Description = "Remove any unused enums or DTOs left from refactors.",
+                IsCompleted = true,
+                DueDate = now.AddDays(-5),
+                CreatedAt = now.AddDays(-9),
+                UpdatedAt = now.AddDays(-5)
+            },
+            new()
+            {
+                Title = "Run backend tests",
+                Description = "Execute dotnet test on the solution.",
+                IsCompleted = false,
+                DueDate = now.AddDays(1),
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Run frontend unit tests",
+                Description = "Execute npm test in the client folder.",
+                IsCompleted = false,
+                DueDate = now.AddDays(1),
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Run Playwright tests",
+                Description = "Execute npm run test:e2e with API and UI running.",
+                IsCompleted = false,
+                DueDate = now.AddDays(1),
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new()
+            {
+                Title = "Final submission check",
+                Description = "Quick pass over code, README, and METHOD.txt.",
+                IsCompleted = false,
+                DueDate = now.AddDays(1),
+                CreatedAt = now,
+                UpdatedAt = now
+            }
+        };
+
+        dbContext.Tasks.AddRange(seedTasks);
+        dbContext.SaveChanges();
+    }
 }
 
 var tasksGroup = app.MapGroup("/api/tasks");
@@ -139,7 +341,7 @@ static Dictionary<string, string[]>? ValidateTitle(string? title)
     {
         return new Dictionary<string, string[]>
         {
-            ["title"] = new[] { "Title must be at most 200 characters." }
+            ["title"] = new[] { "Title must be at most 100 characters." }
         };
     }
 
