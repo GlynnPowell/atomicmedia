@@ -65,10 +65,15 @@ describe('App', () => {
       }
     ])
 
+    // Ensure we start on the list route so tasks are visible
+    window.history.pushState(null, '', '/tasks')
+
     render(React.createElement(App))
 
     expect(await screen.findByText('Write assessment')).toBeInTheDocument()
-    expect(await screen.findByText(/pending/i)).toBeInTheDocument()
+    // Assert specifically on the status cell in the table, not the filter dropdown option
+    const statusCell = await screen.findByRole('cell', { name: /pending/i })
+    expect(statusCell).toBeInTheDocument()
   })
 })
 

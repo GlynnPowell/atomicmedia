@@ -720,6 +720,14 @@ export const App: React.FC = () => {
   )
 }
 
-ReactDOM.createRoot(document.getElementById('app') as HTMLElement).render(
-  React.createElement(React.StrictMode, null, React.createElement(App))
-)
+// Only mount the app automatically when a real DOM root is present.
+// This allows the `App` component to be imported in tests without
+// triggering a ReactDOM render against a missing element.
+if (typeof document !== 'undefined') {
+  const rootElement = document.getElementById('app')
+  if (rootElement) {
+    ReactDOM.createRoot(rootElement).render(
+      React.createElement(React.StrictMode, null, React.createElement(App))
+    )
+  }
+}
